@@ -27,8 +27,8 @@ public:
   TVector(int s = 10, int si = 0);
   TVector(const TVector &v);                // конструктор копирования
   ~TVector();
-  int GetSize()      { return Size;       } // размер вектора
-  int GetStartIndex(){ return StartIndex; } // индекс первого элемента
+  int GetSize()   const   { return Size;       } // размер вектора
+  int GetStartIndex() const { return StartIndex; } // индекс первого элемента
   ValType& operator[](int pos);             // доступ
   bool operator==(const TVector &v) const;  // сравнение
   bool operator!=(const TVector &v) const;  // сравнение
@@ -62,7 +62,7 @@ public:
 template <class ValType>
 TVector<ValType>::TVector(int s, int si)
 {
-	if ((si > -1) && (s > -1) && (s < MAX_VECTOR_SIZE) && (si < s))
+	if ((si > -1) && (s > -1) && (s < MAX_VECTOR_SIZE))
 	{
 		Size = s;
 		StartIndex = si;
@@ -96,10 +96,10 @@ TVector<ValType>::~TVector()
 template <class ValType> // доступ
 ValType& TVector<ValType>::operator[](int pos)
 {
-	if ((pos > Size) || (pos < 0))
+	if ((pos > Size) || (pos < 0) || (StartIndex > pos))
 		throw invalid_argument("Неверный ввод данных");
-	else if (pos > StartIndex)
-		return *new ValType();
+	//else if (pos > StartIndex)
+		//return *new ValType();
 		
 	return pVector[pos];
 } /*-------------------------------------------------------------------------*/
@@ -275,14 +275,9 @@ TMatrix<ValType>::TMatrix(int s): TVector<TVector<ValType> > (s)
 
 		for (int i = 0; i < s; i++)
 		{
-			pVector[i] = TVector<ValType>(s - i, i);
+			pVector[i] = TVector<ValType>(s, i);
 		}
-		for (int i = 0; i < s; i++)
-		{
-			for (int j = pVector[i].GetStartIndex(); j < pVector[i].GetSize() + pVector[i].GetStartIndex(); j++)
-				pVector[i][j] = 0;
-				
-		}
+
 	}
 } /*-------------------------------------------------------------------------*/
 
@@ -297,19 +292,55 @@ TMatrix<ValType>::TMatrix(const TVector<TVector<ValType> > &mt):
 template <class ValType> // сравнение
 bool TMatrix<ValType>::operator==(const TMatrix<ValType> &mt) const
 {
-	return true;
+	bool check = true;
+	if (GetSize() != mt.GetSize())
+		check = false;
+	else
+	{
+		for (int i = 0; i < mt.GetSize(); i++)
+		{
+			for (int j = i; j < mt.GetSize(); j++)
+			{
+				if (pVector[i][j] != mt.pVector[i][j])
+					check = false;
+
+			}
+		}
+	}
+
+		
+	return check;
 } /*-------------------------------------------------------------------------*/
 
 template <class ValType> // сравнение
 bool TMatrix<ValType>::operator!=(const TMatrix<ValType> &mt) const
 {
-	return true;
+	bool check = false;
+	if (GetSize() != mt.GetSize())
+		check = true;
+	else
+	{
+		for (int i = 0; i < mt.GetSize(); i++)
+		{
+			for (int j = i; j < mt.GetSize(); j++)
+			{
+				if (pVector[i][j] != mt.pVector[i][j])
+					check = true;
+
+			}
+		}
+	}
+
+
+	return check;
 } /*-------------------------------------------------------------------------*/
 
 template <class ValType> // присваивание
 TMatrix<ValType>& TMatrix<ValType>::operator=(const TMatrix<ValType> &mt)
 {
-	return (*this);
+
+	
+	return *this;
 } /*-------------------------------------------------------------------------*/
 
 template <class ValType> // сложение
