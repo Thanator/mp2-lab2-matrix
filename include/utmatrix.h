@@ -47,13 +47,13 @@ public:
   // ввод-вывод
   friend istream& operator>>(istream &in, TVector &v)
   {
-    for (int i = 0; i < v.Size; i++)
+    for (int i = v.StartIndex; i < v.Size; i++)
       in >> v.pVector[i];
     return in;
   }
   friend ostream& operator<<(ostream &out, const TVector &v)
   {
-    for (int i = 0; i < v.Size; i++)
+    for (int i = v.StartIndex; i < v.Size; i++)
       out << v.pVector[i] << ' ';
     return out;
   }
@@ -155,7 +155,7 @@ TVector<ValType>& TVector<ValType>::operator=(const TVector &v)
 		StartIndex = v.StartIndex;
 		delete[] pVector;
 		pVector = new ValType[Size];
-		for (int i = StartIndex; i < Size; i++)
+		for (int i = v.StartIndex; i < v.Size; i++)
 			pVector[i] = v.pVector[i];
 	}
 	return *this;
@@ -276,6 +276,7 @@ TMatrix<ValType>::TMatrix(int s): TVector<TVector<ValType> > (s)
 		for (int i = 0; i < s; i++)
 		{
 			pVector[i] = TVector<ValType>(s, i);
+			
 		}
 
 	}
@@ -338,21 +339,33 @@ bool TMatrix<ValType>::operator!=(const TMatrix<ValType> &mt) const
 template <class ValType> // присваивание
 TMatrix<ValType>& TMatrix<ValType>::operator=(const TMatrix<ValType> &mt)
 {
+	if (*this != mt)
+	{
+		if (Size != mt.Size)
+		{
+			Size = mt.Size;
+			delete[] pVector;
+			pVector = new TVector<ValType>[Size];
+		}
+		StartIndex = mt.StartIndex;
+		for (int i = 0; i < Size; i++)
+			pVector[i] = mt.pVector[i];
+	}
 
-	
+
 	return *this;
 } /*-------------------------------------------------------------------------*/
 
 template <class ValType> // сложение
 TMatrix<ValType> TMatrix<ValType>::operator+(const TMatrix<ValType> &mt)
 {
-	return (*this);
+	return TVector<TVector<ValType> > :: operator+(mt);
 } /*-------------------------------------------------------------------------*/
 
 template <class ValType> // вычитание
 TMatrix<ValType> TMatrix<ValType>::operator-(const TMatrix<ValType> &mt)
 {
-	return (*this);
+	return TVector<TVector<ValType> > :: operator-(mt);
 } /*-------------------------------------------------------------------------*/
 
 // TVector О3 Л2 П4 С6

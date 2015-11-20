@@ -105,7 +105,9 @@ TEST(TVector, assign_operator_change_vector_size)
 TEST(TVector, can_assign_vectors_of_different_size)
 {
 	TVector<int> v(3), v1(4);
-	ASSERT_NO_THROW(v = v1);
+	v1[3] = 5;
+	v = v1;
+	EXPECT_EQ(5, v[3]);
 }
 
 TEST(TVector, compare_equal_vectors_return_true)
